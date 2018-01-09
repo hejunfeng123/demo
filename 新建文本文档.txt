@@ -1,0 +1,461 @@
+$(function(){
+	BdAjax();
+	
+});
+
+//获取标段名称
+function BdAjax(){
+	$.ajax({
+		url : 'rest/sgb_info/bd',
+		type : 'POST',
+		success : function(result) {
+			if(result.resultValue!=""){
+				var result=result.resultValue.items;
+				$("#bd").empty();
+				$.each(result,function(index,item){
+					$("#bd").append("<option value='"+item.id+"'>"+item.name+"</option>");
+				});
+				var id = $("#bd")[0].value;;
+				changeForm(id);
+			}
+		}
+	});
+}
+
+//标段改变事件
+function changeForm(obj){
+	var BdName = $("#bd").find("option:selected").text();
+	
+	$(".xxhtztjjdtit").empty();
+	$(".xxhtztjjdtit").append(BdName + "标段--总体施工进度展示");
+	
+	$("#ztsgjdmc").empty();
+	$("#ztsgjdmc").append(BdName + "标段--总体施工进度情况");
+	
+	$("#gxzjdmc").empty();
+	$("#gxzjdmc").append(BdName + "标段--各工序总体进度情况");
+	
+	var BdId = obj;
+	if(BdId != null){
+		//标段施工
+		$.ajax({
+			url : 'rest/sgb_info/findTjsjByID',
+			type : 'POST',
+			data : {"id":BdId } ,
+			success : function(result) {
+				if(result.resultValue!=""){
+					var result=result.resultValue.items;
+					if(result.length > 0){
+						firstChart(null,null,100,20,null,null,null,BdName);
+						secondChart(null,null,100,20,null,null,null,BdName);
+						$("#ztsgjd").empty();
+						$("#gxzjd").empty();
+						
+						var startTime = result[0].tjsj;
+						var endTime = result[result.length-1].tjsj;
+						
+						//基础开挖
+						var t_jckw =0 ;
+						var ac_jckw =0 ;
+						
+						//基础浇制
+						var t_jcjz =0 ;
+						var ac_jcjz =0 ;
+						
+						//基础回填
+						var t_jcht =0 ;
+						var ac_jcht =0 ;
+						
+						//基础组塔
+						var t_jczt =0 ;
+						var ac_jczt =0 ;
+						
+						//架线施工
+						var t_jxsg =0 ;
+						var ac_jxsg =0 ;
+						
+						//附件安装
+						var t_fjaz =0 ;
+						var ac_fjaz =0 ;
+						
+						var months = [];	//按月的柱状图  月分集合
+						T_ztsgjd = [];		//分组旬中总体施工进度
+						
+						var mapjh = [];			//按施工类型计算	计划
+						var mapsj = [];			//按施工类型计算	实际
+						var mapjhcount = [] ;	//按施工类型计算  数据集合，求最大值最小值的时候用
+						
+						var mapjc = [];		//按施工类型计算  施工类型集合
+						
+						var mouthjh = [];	//按月的柱状图  计划
+						var mouthsj = [];	//按月的柱状图  实际
+						var mouthcount = [];	//按月的柱状图  数据集合，求最大值最小值的时候用
+						
+						var t_result;
+						var ac_result;
+						$.ajax({
+							url : 'rest/sgb_info/findBdsgjd',
+							type : 'POST',
+							data : {"id":BdId, "startTime":startTime,"endTime":endTime} ,
+							success : function(result) {
+								debugger
+								
+								if(result != ""){
+									ac_result = result.ac_List;
+									t_result = result.t_List;
+									
+									
+									var ac_data = 0 ;
+									var t_data = 0 ;
+									for(var i = 0 ; i < ac_result.length ; i++){
+										
+										$("#ztsgjd").append(
+											"<tr>" +
+												"<th>"+ac_result[i].month+"</th>" +
+												"<th>"+(ac_data + ac_result[i].ac_JCKWSL + ac_result[i].ac_JCJZSL + ac_result[i].ac_JCHTSL + ac_result[i].ac_JCZTSL + ac_result[i].ac_JXSGSL + ac_result[i].ac_FJAZSL )+"</th>" +
+												"<th>"+(t_data + t_result[i].t_JCKWSL + t_result[i].t_JCJZSL + t_result[i].t_JCHTSL + t_result[i].t_JCZTSL + t_result[i].t_JXSGSL + t_result[i].t_FJAZSL )+"</th>" +
+												"<th>"+((t_data + t_result[i].t_JCKWSL + t_result[i].t_JCJZSL + t_result[i].t_JCHTSL + t_result[i].t_JCZTSL + t_result[i].t_JXSGSL + t_result[i].t_FJAZSL )*100/(ac_data + ac_result[i].ac_JCKWSL + ac_result[i].ac_JCJZSL + ac_result[i].ac_JCHTSL + ac_result[i].ac_JCZTSL + ac_result[i].ac_JXSGSL + ac_result[i].ac_FJAZSL )).toFixed(2) +"%"+"</th>" +
+											"</tr>"	
+										);
+										
+										months.push(ac_result[i].month);	//分组旬的集合
+										
+										mouthjh.push(ac_data + ac_result[i].ac_JCKWSL + ac_result[i].ac_JCJZSL + ac_result[i].ac_JCHTSL + ac_result[i].ac_JCZTSL + ac_result[i].ac_JXSGSL + ac_result[i].ac_FJAZSL);
+										mouthsj.push(t_data + t_result[i].t_JCKWSL + t_result[i].t_JCJZSL + t_result[i].t_JCHTSL + t_result[i].t_JCZTSL + t_result[i].t_JXSGSL + t_result[i].t_FJAZSL);
+										
+										mouthcount.push(ac_data + ac_result[i].ac_JCKWSL + ac_result[i].ac_JCJZSL + ac_result[i].ac_JCHTSL + ac_result[i].ac_JCZTSL + ac_result[i].ac_JXSGSL + ac_result[i].ac_FJAZSL );
+										mouthcount.push(t_data + t_result[i].t_JCKWSL + t_result[i].t_JCJZSL + t_result[i].t_JCHTSL + t_result[i].t_JCZTSL + t_result[i].t_JXSGSL + t_result[i].t_FJAZSL);
+										
+										ac_data += ac_result[i].ac_JCKWSL + ac_result[i].ac_JCJZSL + ac_result[i].ac_JCHTSL + ac_result[i].ac_JCZTSL + ac_result[i].ac_JXSGSL + ac_result[i].ac_FJAZSL ;
+										t_data += t_result[i].t_JCKWSL + t_result[i].t_JCJZSL + t_result[i].t_JCHTSL + t_result[i].t_JCZTSL + t_result[i].t_JXSGSL + t_result[i].t_FJAZSL ;
+										
+										t_jckw += t_result[i].t_JCKWSL;
+										ac_jckw += ac_result[i].ac_JCKWSL;
+										
+										t_jcjz += t_result[i].t_JCJZSL;
+										ac_jcjz += ac_result[i].ac_JCJZSL;
+										
+										t_jcht += t_result[i].t_JCHTSL;
+										ac_jcht += ac_result[i].ac_JCHTSL;
+										
+										t_jczt += t_result[i].t_JCZTSL;
+										ac_jczt += ac_result[i].ac_JCZTSL;
+										
+										t_jxsg += t_result[i].t_JXSGSL;
+										ac_jxsg += ac_result[i].ac_JXSGSL;
+										
+										t_fjaz += t_result[i].t_FJAZSL;
+										ac_fjaz += ac_result[i].ac_FJAZSL;
+									}
+									
+									//将所有的数据添加进
+									mapjhcount.push(t_jckw);
+									mapjhcount.push(ac_jckw);
+									
+									mapjhcount.push(t_jcjz);
+									mapjhcount.push(ac_jcjz);
+									
+									mapjhcount.push(t_jcht);
+									mapjhcount.push(ac_jcht);
+									
+									mapjhcount.push(t_jczt);
+									mapjhcount.push(ac_jczt);
+									
+									mapjhcount.push(t_jxsg);
+									mapjhcount.push(ac_jxsg);
+									
+									mapjhcount.push(t_fjaz);
+									mapjhcount.push(ac_fjaz);
+									
+									mapjh.push(ac_jckw);
+									mapjh.push(ac_jcjz);
+									mapjh.push(ac_jcht);
+									mapjh.push(ac_jczt);
+									mapjh.push(ac_jxsg);
+									mapjh.push(ac_fjaz);
+									
+									mapsj.push(t_jckw);
+									mapsj.push(t_jcjz);
+									mapsj.push(t_jcht);
+									mapsj.push(t_jczt);
+									mapsj.push(t_jxsg);
+									mapsj.push(t_fjaz);
+									
+									mapjc.push("基础开挖");
+									mapjc.push("基础浇制");
+									mapjc.push("基础回填");
+									mapjc.push("基础组塔");
+									mapjc.push("架线施工");
+									mapjc.push("附件安装");
+									
+									$("#gxzjd").append(
+											"<tr>" +
+											"<th>基础开挖</th>" +
+											"<th>"+ac_jckw+"</th>" +
+											"<th>"+t_jckw+"</th>" +
+											"<th>"+(t_jckw*100/ac_jckw).toFixed(2)+"%"+"</th>" +
+											"</tr>" +
+											"<tr>" +
+											"<th>基础浇制</th>" +
+											"<th>"+ac_jcjz+"</th>" +
+											"<th>"+t_jcjz+"</th>" +
+											"<th>"+(t_jcjz*100/ac_jcjz).toFixed(2)+"%"+"</th>" +
+											"</tr>" +
+											"<tr>" +
+											"<th>基础回填</th>" +
+											"<th>"+ac_jcht+"</th>" +
+											"<th>"+t_jcht+"</th>" +
+											"<th>"+(t_jcht*100/ac_jcht).toFixed(2)+"%"+"</th>" +
+											"</tr>" +
+											"<tr>" +
+											"<th>基础组塔</th>" +
+											"<th>"+ac_jczt+"</th>" +
+											"<th>"+t_jczt+"</th>" +
+											"<th>"+(t_jczt*100/ac_jczt).toFixed(2)+"%"+"</th>" +
+											"</tr>" +
+											"<tr>" +
+											"<th>架线施工</th>" +
+											"<th>"+ac_jxsg+"</th>" +
+											"<th>"+t_jxsg+"</th>" +
+											"<th>"+(t_jxsg*100/ac_jxsg).toFixed(2)+"%"+"</th>" +
+											"</tr>" +
+											"<tr>" +
+											"<th>附件安装</th>" +
+											"<th>"+ac_fjaz+"</th>" +
+											"<th>"+t_fjaz+"</th>" +
+											"<th>"+(t_fjaz*100/ac_fjaz).toFixed(2)+"%"+"</th>" +
+											"</tr>"
+									);
+									
+									//第一个柱状图   需要的气泡标注
+									var jhmouth_markPoint_data = new Array();	//应供提交图纸上方的数值的数组
+									var sjmouth_markPoint_data = new Array();	//实际提交图纸上方的数值的数组
+									for(var i=0;i<mouthjh.length;i++){
+										jhmouth_markPoint_data[i] = {xAxis:months[i],yAxis:mouthjh[i],symbolSize:70};
+										sjmouth_markPoint_data[i] = {xAxis:months[i],yAxis:mouthsj[i],symbolSize:70};
+									}
+									
+									//secondChart 需要的气泡标注
+									var yg_markPoint_data = new Array();	//应供提交图纸上方的数值的数组
+									var sc_markPoint_data = new Array();	//实际提交图纸上方的数值的数组
+									for(var i=0;i<mapjh.length;i++){
+										yg_markPoint_data[i] = {xAxis:mapjc[i],yAxis:mapjh[i],symbolSize:70};
+										sc_markPoint_data[i] = {xAxis:mapjc[i],yAxis:mapsj[i],symbolSize:70};
+									}
+									
+									//第一个柱状图   的刻度计算
+									var maxMouthCount = bj(mouthcount);
+									var minMouth = parseInt(maxMouthCount/10);
+									maxMouthCount = maxMouthCount + minMouth;
+									
+									//第二个柱状图   的刻度计算
+									var maxCount = bj(mapjhcount);
+									var min = parseInt(maxCount/10);
+									maxCount = maxCount + min;
+									
+									//第一个柱状图
+									firstChart(mouthjh,mouthsj,maxMouthCount,minMouth,jhmouth_markPoint_data,sjmouth_markPoint_data,months,BdName);
+									//第二个柱状图
+									secondChart(mapjh,mapsj,maxCount,min,yg_markPoint_data,sc_markPoint_data,mapjc,BdName);
+								}
+							}
+						});
+					}
+				}	
+			}
+		});	
+	}
+}
+			
+//取出数组中最大的值
+function bj(mapjhcount){
+	var maxCount = 0 ;
+	for(var i = 0 ; i < mapjhcount.length ; i++){
+		if(i == 0 ){
+			maxCount = mapjhcount[i];
+		}else{
+			if(maxCount < mapjhcount[i]){
+				maxCount = mapjhcount[i];
+			}
+		}
+	}
+	if(maxCount.toString().length > 3){
+		var Mcount = parseInt(maxCount.toString().substring(0, maxCount.toString().length -3)+"000");
+		var Wcount = parseInt(quzheng(3).toString());
+		maxCount = Mcount + Wcount;
+	}else if(maxCount.toString().length > 2){
+		maxCount = parseInt(maxCount + 10);
+	}
+	return parseInt(maxCount);
+}
+
+function quzheng(length){
+	var numb = "1";
+	for(var i =0 ; i < length ; i++){
+		numb += 0 ;
+	}
+	return numb;
+}
+
+
+//第一个柱状图
+function firstChart(mouthjh,mouthsj,maxMouthCount,minMouth,jhmouth_markPoint_data,sjmouth_markPoint_data,months,BdName){
+	
+	var firstChart=echarts.init(document.getElementById('firstChart'));
+    var option = {
+        title: {
+            text: BdName + '标段——总体施工进度',
+            textStyle: {
+                fontWeight: 'normal',
+                color: '#319196',
+                fontSize:'14',
+            },
+            x:'center',
+        },
+        grid:{
+            x:50,
+            y:80,
+            x2:10,
+            y2:50,
+            borderWidth:1
+        },
+        toolbox: {
+            feature: {
+                dataView: {show: true, readOnly: false},
+                magicType: {show: true, type: ['line', 'bar']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        legend: {
+            data:['应完成','已完成'],
+            left:160,
+            y:'40'
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: months,
+                axisPointer: {
+                    type: 'shadow'
+                }
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value',
+                min: 0,
+                max: maxMouthCount,
+                interval: minMouth,
+            },
+
+        ],
+        color: ['#39a2a8', '#e05552'],
+        series: [
+            {
+                name:'应完成',
+                type:'bar',
+                data:mouthjh,
+                barWidth:30,
+              //系列中的数据标注内容  
+                markPoint: {  
+                    data: jhmouth_markPoint_data
+                }
+            },
+            {
+                name:'已完成',
+                type:'bar',
+                data:mouthsj,
+                barWidth:30,
+              //系列中的数据标注内容  
+                markPoint: {  
+                    data: sjmouth_markPoint_data
+                }
+            },
+
+        ]
+    };
+    firstChart.setOption(option)
+}
+
+//第二个柱状图
+function secondChart(mapjh,mapsj,maxCount,min,yg_markPoint_data,sc_markPoint_data,mapjc,BdName){
+	
+	var secondChart=echarts.init(document.getElementById('secondChart'));
+    var option1 = {
+            title: {
+                text: BdName+'标段—各工序总体进度展示',
+                textStyle: {
+                    fontWeight: 'normal',
+                    color: '#319196',
+                    fontSize:'14',
+                },
+                x:'center',
+            },
+            grid:{
+                x:50,
+                y:80,
+                x2:10,
+                y2:50,
+                borderWidth:1
+            },
+            toolbox: {
+                feature: {
+                    dataView: {show: true, readOnly: false},
+                    magicType: {show: true, type: ['line', 'bar']},
+                    restore: {show: true},
+                    saveAsImage: {show: true}
+                }
+            },
+            legend: {
+                data:['应完成','已完成'],
+                left:160,
+                y:'40'
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: mapjc,
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    min: 0,
+                    max: maxCount,
+                    interval: min,
+                },
+
+            ],
+            color: ['#39a2a8', '#e05552'],
+            series: [
+                {
+                    name:'应完成',
+                    type:'bar',
+                    data:mapjh,
+                    barWidth:30,
+                  //系列中的数据标注内容  
+	                markPoint: {  
+	                    data: yg_markPoint_data
+	                }
+                },
+                {
+                    name:'已完成',
+                    type:'bar',
+                    data:mapsj,
+                    barWidth:30,
+                  //系列中的数据标注内容  
+	                markPoint: {  
+	                    data:sc_markPoint_data
+	                }
+                },
+
+            ]
+        };
+    secondChart.setOption(option1)
+	
+	
+}

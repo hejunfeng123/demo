@@ -1,0 +1,14 @@
+select CONCAT(CAST(month(str_to_date(b.TJSJ,'%Y-%m-%d')) AS CHAR), '月',case when  day(str_to_date(b.TJSJ,'%Y-%m-%d'))
+ between 1 and 10 then N'上旬' when day(str_to_date(b.TJSJ,'%Y-%m-%d')) 
+ between 11 and 20 then N'中旬' else N'下旬' end ) as month,
+
+ c.NAME as sgdw, a.NAME  as bdname,a.JCKWSL as t_JCKWSL,a.JCJZSL as t_JCJZSL,
+a.JCHTSL as t_JCHTSL,a.JCZTSL as t_JCZTSL,a.JXSGSL as t_JXSGSL,a.FJAZSL as t_FJAZSL,
+sum(b.JCKWSL) as ac_JCKWSL,sum(b.JCJZSL) as ac_JCJZSL,
+sum(b.JCHTSL) as ac_JCHTSL,sum(b.JCZTSL) as ac_JCZTSL,sum(b.JXSGSL) as ac_JXSGSL,sum(b.FJAZSL) as ac_FJAZSL,
+round(sum(b.JCKWSL)/a.JCKWSL*100,2) as per_JCKWSL,round(sum(b.JCJZSL)/a.JCJZSL*100,2) as per_JCJZSL,
+round(sum(b.JCHTSL)/a.JCHTSL*100,2) as per_JCHTSL,round(sum(b.JCZTSL)/a.JCZTSL*100,2) as per_JCZTSL,round(sum(b.JXSGSL)/a.JXSGSL*100,2) as per_JXSGSL,
+round(sum(b.FJAZSL)/a.FJAZSL*100,2) as per_FJAZSL
+
+ from sgb_info as a inner join bdsg_info as b on a.ID=b.BDSGB_ID inner join sgdw_info c on a.SGDW=c.ID  where str_to_date(b.TJSJ,'%Y-%m-%d') between '2017-09-01' and '2017-10-31'
+ group by  month,c.NAME,a.NAME,a.ID order by bdname,month;

@@ -1,0 +1,10 @@
+1、安装OpenOffice 4：下载路径：http://www.openoffice.org/download/index.html
+2、用以下命令启动OpenOffice服务 
+         cd D:\Program Files (x86)\OpenOffice 4\program
+         soffice -headless -accept="socket,host=127.0.0.1,port=8100;urp;" -nofirststartwizard 
+
+linux下：
+cd /opt/openoffice4/program 
+ ./soffice "-accept=socket,host=localhost,port=8100;urp;StarOffice.ServiceManager" -nologo -headless -nofirststartwizard &
+
+3、SWFTools 下载地址http://www.swftools.org/download.html

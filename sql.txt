@@ -1,6 +1,6 @@
-select CONCAT(CAST(month(str_to_date(b.TJSJ,'%Y-%m-%d')) AS CHAR), '月',case when  day(str_to_date(b.TJSJ,'%Y-%m-%d'))
- between 1 and 10 then N'上旬' when day(str_to_date(b.TJSJ,'%Y-%m-%d')) 
- between 11 and 20 then N'中旬' else N'下旬' end ) as month,
+select CONCAT(CAST(month(str_to_date(b.TJSJ,'%Y-%m-%d')) AS CHAR), '脭脗',case when  day(str_to_date(b.TJSJ,'%Y-%m-%d'))
+ between 1 and 10 then N'脡脧脩庐' when day(str_to_date(b.TJSJ,'%Y-%m-%d')) 
+ between 11 and 20 then N'脰脨脩庐' else N'脧脗脩庐' end ) as month,
 
  c.NAME as sgdw, a.NAME  as bdname,a.JCKWSL as t_JCKWSL,a.JCJZSL as t_JCJZSL,
 a.JCHTSL as t_JCHTSL,a.JCZTSL as t_JCZTSL,a.JXSGSL as t_JXSGSL,a.FJAZSL as t_FJAZSL,
@@ -11,4 +11,4 @@ round(sum(b.JCHTSL)/a.JCHTSL*100,2) as per_JCHTSL,round(sum(b.JCZTSL)/a.JCZTSL*1
 round(sum(b.FJAZSL)/a.FJAZSL*100,2) as per_FJAZSL
 
  from sgb_info as a inner join bdsg_info as b on a.ID=b.BDSGB_ID inner join sgdw_info c on a.SGDW=c.ID  where str_to_date(b.TJSJ,'%Y-%m-%d') between '2017-09-01' and '2017-10-31'
- group by  month,c.NAME,a.NAME,a.ID order by bdname,month;
+ group by  month,c.NAME,a.NAME,a.ID order by bdname,month;11

@@ -8,3 +8,5 @@ cd /opt/openoffice4/program
  ./soffice "-accept=socket,host=localhost,port=8100;urp;StarOffice.ServiceManager" -nologo -headless -nofirststartwizard &
 
 3、SWFTools 下载地址http://www.swftools.org/download.html
+
+4、SWFTools 下载地址http://www.swftools.org/download.html

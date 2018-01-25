@@ -1,12 +1,14 @@
-1、安装OpenOffice 4：下载路径：http://www.openoffice.org/download/index.html
-2、用以下命令启动OpenOffice服务 
+1銆佸畨瑁匫penOffice 4锛氫笅杞借矾寰勶細http://www.openoffice.org/download/index.html
+2銆佺敤浠ヤ笅鍛戒护鍚姩OpenOffice鏈嶅姟 
          cd D:\Program Files (x86)\OpenOffice 4\program
          soffice -headless -accept="socket,host=127.0.0.1,port=8100;urp;" -nofirststartwizard 
 
-linux下：
+linux涓嬶細
 cd /opt/openoffice4/program 
  ./soffice "-accept=socket,host=localhost,port=8100;urp;StarOffice.ServiceManager" -nologo -headless -nofirststartwizard &
 
-3、SWFTools 下载地址http://www.swftools.org/download.html
+3銆丼WFTools 涓嬭浇鍦板潃http://www.swftools.org/download.html
 
-4、SWFTools 下载地址http://www.swftools.org/download.html
+4銆丼WFTools 涓嬭浇鍦板潃http://www.swftools.org/download.html
+
+5銆丼WFTools 涓嬭浇鍦板潃http://www.swftools.org/download.html

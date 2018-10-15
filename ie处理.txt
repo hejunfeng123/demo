@@ -1,0 +1,21 @@
+if (!document.addEventListener) {
+    // IE6~IE8
+    document.write('<script src="ieBetter.js"><\/script>');	
+}
+
+如何使用
+IE9+以及Chrome, FireFox等浏览器直接出门左转欣赏浪漫的雾霾景色。IE6-IE8浏览器引入ieBetter.js. 如何无干扰引入？
+第一个想到的是IE的条件注释，如下：
+<!--[if lte IE 8]>
+<script src="ieBetter.js"></script>
+<![endif]-->
+但是，IE10+浏览器已经跟条件注释say googbye了！因此，例如我的IE11浏览器的IE7, IE8兼容模式下，条件注释直接被吊死，没气了！
+于是，为了更广泛的适用性，可以试试下面这个方法：
+if (!document.addEventListener) {
+    // IE6~IE8
+    document.write('<script src="ieBetter.js"><\/script>');	
+}
+或者您有什么更好的只让IE6~IE8加载ieBetter.js的方法？
+
+
+http://www.zhangxinxu.com/wordpress/2013/12/iebetter-js-make-ie6-ie8-like-modern-browser-ie9-chrome/
